@@ -1,142 +1,94 @@
-<!-- <script setup lang="ts">
-import { ref } from "vue";
-// import QRCodeVue3 from "qrcode-vue3";
-import { useGeolocation } from "@vueuse/core";
-import { useRouter } from "vue-router";
-const { coords } = useGeolocation();
-const router = useRouter();
-const basicUrl = "http://localhost:3000";
-const jwtToken = localStorage.getItem("token");
-const userId = localStorage.getItem("userId");
-const startTime = ref("--:--:--");
-const endTime = ref("--:--:--");
-const qrSwitch = ref(false);
-let qrCodeUrl = "";
-// const qrcodeValue = ref(`${basicUrl}/checkIn/qrCode/${qrCodeUrl}/${1}`);
-// async function preQrcode() {
-//   try {
-//     let preQrCodeRes = await fetch(`${basicUrl}/checkIn/preQrCode`, {
-//       method: "POST",
-//       headers: {
-//         "Content-Type": "application/json",
-//         Authorization: `Bearer ${jwtToken}`,
-//       },
-//       body: JSON.stringify({
-//         location: {
-//           latitude: coords.value.latitude,
-//           longitude: coords.value.longitude,
-//         },
-//       }),
-//     });
-//     preQrCodeRes = await preQrCodeRes.json();
-//     if (preQrCodeRes.status === 200) {
-//       qrCodeUrl = preQrCodeRes.message;
-//       qrcodeValue.value = `${basicUrl}/checkIn/qrCode/${qrCodeUrl}/${userId}`;
-//       qrSwitch.value = !qrSwitch.value;
-//     }
-//   } catch (err) {
-//     console.log(err);
-//   }
-// }
-
-async function checkIn() {
-  try {
-    let checkInRes = await fetch(`${basicUrl}/checkIn/check`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${jwtToken}`,
-      },
-      body: JSON.stringify({
-        userId: userId,
-        location: {
-          latitude: coords.value.latitude,
-          longitude: coords.value.longitude,
-        },
-      }),
-    });
-    checkInRes = await checkInRes.json();
-    if (checkInRes.status === 200) {
-      if (checkInRes.startTime !== "Invalid date") {
-        startTime.value = checkInRes.startTime.split(" ")[1];
-      }
-      if (checkInRes.endTime !== "Invalid date") {
-        endTime.value = checkInRes.endTime.split(" ")[1];
-      }
-    }
-  } catch (err) {
-    console.log(err);
-  }
-}
-
-function logout() {
-  localStorage.removeItem("token");
-  localStorage.removeItem("userId");
-  localStorage.removeItem("routerAuth");
-  router.push("/");
-}
-</script>
-
 <template>
-  <div class="checkDiv">
-    <button class="checkButton" @click="checkIn">簽到</button>
-    <div v-if="qrSwitch">
-      <QRCodeVue3 :width="100" :height="100" :value="qrcodeValue" />
+  <div class="row mt-3">
+    <div class="col-md m-auto">
+      <div class="card card-body">
+        <h1 class="text-center mt-3">Welcome <strong>{{ currentUser.name }}</strong></h1>
+        <h1 class="text-center mt-1">titan打卡系統</h1>
+        <h4 class="text-center text-info" v-if="punchData.status"><strong>{{ punchData.currentTime }}</strong> {{
+          punchData.message
+        }}
+        </h4>
+        <div class="mt-3 m-auto">
+          <button type="button" class="btn btn-primary btn-lg" @click="punch" v-if="!isProcessing">Punch</button>
+        </div>
+        <div class="mt-3 m-auto">
+          <button type="button" class="btn btn-primary btn-lg">QRCode</button>
+        </div>
+      </div>
     </div>
-    <button class="qrCodeButton" @click="preQrcode">QR code</button>
-    <div class="timePoint">
-      <p>上班時間</p>
-      <p>{{ startTime }}</p>
-    </div>
-    <div class="timePoint">
-      <p>下班時間</p>
-      <p>{{ endTime }}</p>
-    </div>
-    <button class="logoutButton" @click="logout">Logout</button>
   </div>
 </template>
 
-<style scoped>
-.checkDiv {
-  width: 30%;
-  margin: auto;
-  margin-top: 5%;
-  background-color: rgb(175, 212, 241);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+<script setup>
+/* import */
+import punchAPI from './../apis/punch'
+import { reactive, ref, computed } from 'vue'
+import { useStore } from "vuex"
+/* declare */
+//system
+const store = useStore()
+//variable
+const currentUser = computed(() => store.state.currentUser)
+const isProcessing = ref(false)
+const punchData = reactive({
+  status: false,
+  message: '',
+  currentTime: ''
+})
+const titanCrd = {  lat: 25.047034391273005,  long: 121.29228889334202}
+//function
+function gatCoordinate() {
+  return new Promise((resolve, reject) =>
+    navigator.geolocation.getCurrentPosition(resolve, reject)
+  );
 }
 
-.checkButton {
-  width: 100px;
-  margin-top: 4%;
-  height: 100px;
-  border-radius: 100%;
+async function getDistanceInMeters(corpLat, corpLong) {
+  try {
+    let pos = await gatCoordinate()
+    const { latitude, longitude } = pos.coords
+    let R = 6371 // Radius of the earth in km
+    let dLat = deg2rad(latitude - corpLat) // deg2rad below
+    let dLon = deg2rad(longitude - corpLong)
+    let a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(deg2rad(corpLat)) *
+      Math.cos(deg2rad(latitude)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2)
+    let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+    let d = R * c * 1000 // Distance in meters
+    return Math.floor(d)
+  } catch (err) {
+    console.log(err)
+  }
 }
 
-.qrCodeButton {
-  width: 50px;
-  margin-top: 4%;
-  height: 50px;
-  border-radius: 100%;
+function deg2rad(deg) {
+  return deg * (Math.PI / 180)
 }
 
-.timePoint {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  height: 50px;
-  width: 50%;
-  margin-bottom: 1%;
+const punch = async function () {
+  // wait for distance
+  const distance = await getDistanceInMeters(titanCrd.lat, titanCrd.long)
+  if (distance < 100000000000000000000000) {
+    isProcessing.value = false
+    const response = await punchAPI.punch()
+    console.log('step2')
+    console.log(isProcessing)
+    console.log(response)
+    punchData.message = response.data.message
+    punchData.currentTime = response.data.formatCurrentTime
+    punchData.status = true
+    return
+  } else {
+    return console.log(`Distance is ${distance}, too far from company`)
+    function deg2rad(deg) {
+      return deg * (Math.PI / 180)
+  }}
 }
+</script>
 
-.timePoint > p {
-  line-height: 50px;
-  margin-top: 0%;
-  margin-left: 5%;
-}
-</style> -->
-<template>
+<style>
 
-</template>
-<script></script>
+</style>

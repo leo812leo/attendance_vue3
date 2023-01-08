@@ -37,7 +37,6 @@ export default createStore({
       try {
         const { data } = await usersAPI.getCurrentUser()
         const { id, employeeId, name, isAdmin } = data
-        console.log({ id, employeeId, name, isAdmin })
         commit('setCurrentUser', {
           id,
           employeeId,
