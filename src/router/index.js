@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHashHistory, createWebHistory } from 'vue-router'
 import NotFound from '../views/NotFound.vue'
 import SignIn from '../views/SignIn.vue'
 import SignUp from '../views/SignUp.vue'
@@ -35,10 +35,9 @@ const routes = [
 ]
 
 const router = createRouter({
-    history: createWebHistory(import.meta.env.BASE_URL),
-    linkActiveClass: 'active',
-    routes
-})
+    history: createWebHashHistory(),
+    routes,
+});
 
 router.beforeEach(async (to, from, next) => {
     const token = localStorage.getItem('token')

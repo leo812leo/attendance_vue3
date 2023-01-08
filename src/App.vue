@@ -1,8 +1,5 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
 import navbarVue from './components/navbar.vue'
-import 'bootstrap'
-import 'bootstrap/dist/css/bootstrap.min.css'
 </script>
 
 <template>
@@ -16,10 +13,4 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 </template>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  color: #2c3e50;
-}
 </style>
