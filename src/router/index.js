@@ -3,7 +3,7 @@ import NotFound from '../views/NotFound.vue'
 import SignIn from '../views/SignIn.vue'
 import Mainpage from '../views/Mainpage.vue'
 import QrcodeGenerator from '../views/QrcodeGenerator.vue'
-
+import ChangePassword from '../views/ChangePassword.vue'
 import store from './../store'
 
 const routes = [
@@ -16,6 +16,11 @@ const routes = [
         path: '/signin',
         name: 'sign-in',
         component: SignIn
+    },
+    {
+        path: '/ChangePassword',
+        name: 'ChangePassword',
+        component: ChangePassword
     },
     {
         path: '/mainpage',

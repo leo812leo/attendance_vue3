@@ -17,15 +17,17 @@
         <!-- </router-link> -->
 
         <!-- user is login -->
-        <template v-if="isAuthenticated">
-          <router-link to="#" class="text-white mr-3">
+        <div v-if="isAuthenticated">
+          <router-link to="/" class="text-white mr-3">
             {{ currentUser.name || '使用者' }} 您好
           </router-link>
-
+          <router-link to="/ChangePassword" class="btn btn-sm btn-outline-success my-2 my-sm-0 mx-2">
+            ChangePassword
+          </router-link>
           <button type="button" class="btn btn-sm btn-outline-success my-2 my-sm-0" @click.prevent.stop="logout">
             登出
           </button>
-        </template>
+        </div>
       </div>
     </div>
   </nav>
@@ -41,8 +43,8 @@ const currentUser = computed(() => store.state.currentUser)
 const isAuthenticated = computed(() => store.state.isAuthenticated)
 
 const logout = () => {
-  store.commit("revokeAuthentication");
-  router.push("/signin");
+  store.commit("revokeAuthentication")
+  router.push("/signin")
 };
 
 </script>
