@@ -1,59 +1,3 @@
-<script setup>
-import { ref, reactive } from 'vue'
-import { useStore } from "vuex"
-import { useRouter } from 'vue-router'
-import authorizationAPI  from '../apis/authorization'
-import { Toast } from './../utils/helpers'
-
-const router = useRouter()
-const store = useStore()
-let isProcessing = ref(false)
-const inputData = reactive({
-  employeeId: '',
-  password: ''
-})
-
-//function
-const login = async function () {
-  try {
-    if (!inputData.employeeId || !inputData.password) {
-      Toast.fire({
-        icon: 'warning',
-        title: 'employeeId and Password are both required'
-      })
-      return
-    }
-
-    isProcessing.value = true
-
-    const response = await authorizationAPI.userLogin({
-      employeeId: inputData.employeeId,
-      password: inputData.password
-    })
-
-    const { data } = response
-    if (data.status !== 'success') {
-      throw new Error(data.message)
-    } else {
-      localStorage.setItem('token', data.token)
-      //使用者資料存入vuex
-      store.commit('setCurrentUser', data.user)
-      router.push("/mainpage")
-      Toast.fire({
-        icon: 'success',
-        title: 'Signed in successfully'
-      })
-    }
-  } catch (error) {
-      Toast.fire({
-        icon: 'warning',
-        title: 'employeeId or Password incorrect'
-      })
-      // 因為登入失敗，所以要把按鈕狀態還原
-    isProcessing.value = false
-    }
-  }
-</script>
 <template>
   <div class="container py-5">
     <form class="w-100"  @submit.prevent.stop="login">
@@ -108,21 +52,59 @@ const login = async function () {
     </form>
   </div>
 </template>
+<script setup>
+import { ref, reactive } from 'vue'
+import { useStore } from "vuex"
+import { useRouter } from 'vue-router'
+import authorizationAPI from '../apis/authorization'
+import { Toast } from './../utils/helpers'
 
+const router = useRouter()
+const store = useStore()
+let isProcessing = ref(false)
+const inputData = reactive({
+  employeeId: '',
+  password: ''
+})
 
-<!-- <template>
-  <div class="login">
-    <div class="inputDiv">
-      <label>Account</label>
-      <input type="text" :value="account" v-on:input="(event) => (account = event.target.value)" />
-    </div>
-    <div class="inputDiv">
-      <label>Password</label>
-      <input type="text" :value="password" v-on:input="(event) => (password = event.target.value)" />
-    </div>
-    <button class="loginButton" @click="login">Login</button>
-    <a href="/resetPassword" class="resetLink">Forget password</a>
-  </div>
-</template> -->
+//function
+const login = async function () {
+  try {
+    if (!inputData.employeeId || !inputData.password) {
+      Toast.fire({
+        icon: 'warning',
+        title: 'employeeId and Password are both required'
+      })
+      return
+    }
 
- <!-- store.commit('setCurrentUser', data.user) -->
+    isProcessing.value = true
+
+    const response = await authorizationAPI.userLogin({
+      employeeId: inputData.employeeId,
+      password: inputData.password
+    })
+
+    const { data } = response
+    if (data.status !== 'success') {
+      throw new Error(data.message)
+    } else {
+      localStorage.setItem('token', data.token)
+      //使用者資料存入vuex
+      store.commit('setCurrentUser', data.user)
+      router.push("/mainpage")
+      Toast.fire({
+        icon: 'success',
+        title: 'Signed in successfully'
+      })
+    }
+  } catch (error) {
+    Toast.fire({
+      icon: 'warning',
+      title: 'employeeId or Password incorrect'
+    })
+    // 因為登入失敗，所以要把按鈕狀態還原
+    isProcessing.value = false
+  }
+}
+</script>

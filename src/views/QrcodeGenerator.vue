@@ -14,10 +14,8 @@
 <script setup>
 /* import */
 import { useStore } from "vuex"
-import { dayjs } from "dayjs"
 import { ref } from 'vue'
 import QrcodeVue from 'qrcode.vue'
-import bcrypt from 'bcryptjs'
 
 const store = useStore()
 const currentUser = store.state.currentUser
@@ -25,9 +23,6 @@ const baseURL = "http://localhost:3000/api/"
 const data = ref("")
 
 const getToken = () => localStorage.getItem("token");
-function encrypt(password) {
-  return bcrypt.hashSync(password, bcrypt.genSaltSync(10))
-}
 function getQRcodeURL(user_id, token) {
   return `${baseURL}QRcode/${user_id}?token=${token}`;
 }
