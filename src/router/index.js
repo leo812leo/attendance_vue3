@@ -1,8 +1,8 @@
 import { createRouter, createWebHashHistory, createWebHistory } from 'vue-router'
 import NotFound from '../views/NotFound.vue'
 import SignIn from '../views/SignIn.vue'
-import SignUp from '../views/SignUp.vue'
 import Mainpage from '../views/Mainpage.vue'
+import QrcodeGenerator from '../views/QrcodeGenerator.vue'
 
 import store from './../store'
 
@@ -18,14 +18,14 @@ const routes = [
         component: SignIn
     },
     {
-        path: '/signup',
-        name: 'sign-up',
-        component: SignUp
-    },
-    {
         path: '/mainpage',
         name: 'mainpage',
         component: Mainpage
+    },
+    {
+        path: '/qrcode/generator',
+        name: 'QrcodeGenerator',
+        component: QrcodeGenerator
     },
     {
         path: '/:pathMatch(.*)*',

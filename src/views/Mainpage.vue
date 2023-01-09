@@ -12,7 +12,9 @@
           <button type="button" class="btn btn-primary btn-lg" @click="punch" v-if="!isProcessing">Punch</button>
         </div>
         <div class="mt-3 m-auto">
-          <button type="button" class="btn btn-primary btn-lg">QRCode</button>
+          <router-link type="button" class="btn btn-primary btn-lg" to="/qrcode/generator">
+          QRCode
+          </router-link>
         </div>
       </div>
     </div>
@@ -21,6 +23,7 @@
 
 <script setup>
 /* import */
+import { Toast } from '../utils/helpers'
 import punchAPI from './../apis/punch'
 import { reactive, ref, computed } from 'vue'
 import { useStore } from "vuex"
@@ -28,7 +31,7 @@ import { useStore } from "vuex"
 //system
 const store = useStore()
 //variable
-const currentUser = computed(() => store.state.currentUser)
+const currentUser = store.state.currentUser
 const isProcessing = ref(false)
 const punchData = reactive({
   status: false,
@@ -41,6 +44,10 @@ function gatCoordinate() {
   return new Promise((resolve, reject) =>
     navigator.geolocation.getCurrentPosition(resolve, reject)
   );
+}
+
+function deg2rad(deg) {
+  return deg * (Math.PI / 180)
 }
 
 async function getDistanceInMeters(corpLat, corpLong) {
@@ -64,31 +71,22 @@ async function getDistanceInMeters(corpLat, corpLong) {
   }
 }
 
-function deg2rad(deg) {
-  return deg * (Math.PI / 180)
-}
-
 const punch = async function () {
   // wait for distance
   const distance = await getDistanceInMeters(titanCrd.lat, titanCrd.long)
-  if (distance < 100000000000000000000000) {
+  if (distance < 400) {
     isProcessing.value = false
     const response = await punchAPI.punch()
-    console.log('step2')
-    console.log(isProcessing)
-    console.log(response)
     punchData.message = response.data.message
     punchData.currentTime = response.data.formatCurrentTime
     punchData.status = true
     return
   } else {
-    return console.log(`Distance is ${distance}, too far from company`)
-    function deg2rad(deg) {
-      return deg * (Math.PI / 180)
-  }}
+    Toast.fire({
+      icon: 'warning',
+      title: `Distance is ${distance}, too far from company`
+    })
+    return
+  }
 }
 </script>
-
-<style>
-
-</style>

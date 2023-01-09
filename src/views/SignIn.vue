@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
 import { ref, reactive } from 'vue'
 import { useStore } from "vuex"
 import { useRouter } from 'vue-router'
@@ -64,7 +64,7 @@ const login = async function () {
       </div>
 
       <div class="form-label-group mb-2">
-        <label for="email">employeeId</label>
+        <label>employeeId</label>
         <input
           v-model="inputData.employeeId"
           id="employeeId"
